@@ -5,34 +5,19 @@ export default function App() {
   const [touched, setTouched] = useState(false);
 
   const rules = [
-    {
-      label: 'At least 8 characters',
-      test: (p) => p.length >= 8,
-    },
-    {
-      label: 'At least one uppercase letter',
-      test: (p) => /[A-Z]/.test(p),
-    },
-    {
-      label: 'At least one lowercase letter',
-      test: (p) => /[a-z]/.test(p),
-    },
-    {
-      label: 'At least one digit',
-      test: (p) => /[0-9]/.test(p),
-    },
-    {
-      label: 'At least one special character',
-      test: (p) => /[^A-Za-z0-9]/.test(p),
-    },
+    (p) => p.length >= 8,
+    (p) => /[A-Z]/.test(p),
+    (p) => /[a-z]/.test(p),
+    (p) => /[0-9]/.test(p),
+    (p) => /[^A-Za-z0-9]/.test(p),
   ];
 
-  const passedRules = rules.filter(rule => rule.test(password)).length;
+  const passedRules = rules.filter(test => test(password)).length;
 
   let strength = '';
   if (passedRules <= 2) strength = 'Weak';
-  else if (passedRules === 3 || passedRules === 4) strength = 'Moderate';
-  else if (passedRules === 5) strength = 'Strong';
+  else if (passedRules <= 4) strength = 'Moderate';
+  else strength = 'Strong';
 
   const getStrengthColor = () => {
     if (strength === 'Weak') return 'red';
@@ -50,13 +35,15 @@ export default function App() {
       borderRadius: 8,
       fontFamily: 'sans-serif'
     }}>
-      <h2>Password Validator</h2>
+      <h2>Password Strength Checker</h2>
       <input
         type="password"
         placeholder="Enter password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        onBlur={() => setTouched(true)}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          setTouched(true);
+        }}
         style={{
           width: '100%',
           padding: 10,
@@ -66,17 +53,10 @@ export default function App() {
           border: '1px solid #aaa'
         }}
       />
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {rules.map((rule, i) => (
-          <li key={i} style={{ color: rule.test(password) ? 'green' : 'red', marginBottom: 4 }}>
-            {rule.test(password) ? '✓' : '✗'} {rule.label}
-          </li>
-        ))}
-      </ul>
-      {touched && (
+      {touched && password && (
         <div style={{ marginTop: 12 }}>
           <strong>Password Strength: </strong>
-          <span style={{ color: getStrengthColor() }}>{strength}</span>
+          <span style={{ color: getStrengthColor(), fontWeight: 'bold' }}>{strength}</span>
         </div>
       )}
     </div>
